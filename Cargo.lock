@@ -3,9 +3,9 @@
 version = 3
 
 [[package]]
-name = "cargo-tools"
+name = "rapp"
 version = "0.1.0"
 
 [[package]]
-name = "rapp"
+name = "rapptool"
 version = "0.1.0"

@@ -1,12 +1,9 @@
 [package]
-name = "cargo-tools"
+name = "rapptool"
 description = "A cargo tool to facilitate building mobile apps with rapp"
 
 version.workspace = true
 authors.workspace = true
 rust-version.workspace = true
-
-[[bin]]
-name = "rapp"
 
 [dependencies]
