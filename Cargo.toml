@@ -1,5 +1,5 @@
 [workspace]
-members = ["cargo-tool", "rapp"]
+members = ["rapptool", "rapp"]
 
 [workspace.package]
 version = "0.1.0"
