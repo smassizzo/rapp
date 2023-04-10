@@ -1,8 +1,9 @@
 [workspace]
-members = ["rapptool", "rapp"]
+members = ["cargo-rapp", "rapp"]
 
 [workspace.package]
 version = "0.1.0"
 authors = ["Sebastiaan Massizzo"]
 description = "A library and tools to build mobile apps with rust"
 rust-version = "1.65"
+edition = "2021"
