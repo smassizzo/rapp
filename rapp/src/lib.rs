@@ -1,14 +1,18 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+use std::{collections::HashMap, sync::Arc};
+
+pub type PageFn = Arc<Box<dyn Page>>;
+
+pub trait RustApp {
+    fn pages(&mut self) -> HashMap<String, PageFn>;
+
+    fn current_page(&self) -> String;
+
+    fn start(&mut self);
+
+    fn new() -> Self;
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub trait Page {
+    fn name(&self) -> String;
+    fn show(&mut self);
 }

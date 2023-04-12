@@ -1,0 +1,11 @@
+[package]
+name = "runner"
+version = "0.1.0"
+rust-version = "1.65"
+edition = "2021"
+
+[dependencies]
+test_app = { path = "../test_app" }
+rapp = { path = "../rapp" }
+egui = "0.21"
+eframe = "0.21"

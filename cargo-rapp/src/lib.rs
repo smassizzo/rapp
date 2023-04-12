@@ -1,5 +1,5 @@
 pub mod clap_rapp_cmd;
-mod error;
+//mod error;
 mod init;
 mod show;
 

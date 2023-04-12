@@ -10,3 +10,8 @@ rust-version = "1.65"
 clap = { version = "4.2.1", features = ["derive"] }
 thiserror = "1.0.16"
 anyhow = "1.0.70"
+
+cargo_metadata = "0.15"
+scratch = "1"
+ron = "0.8"
+serde = { version = "1", features = ["derive"] }

@@ -1,0 +1,11 @@
+[package]
+name = "test_app"
+description = "A mobile app build with rapp - RustApp"
+version = "0.1.0"
+rust-version = "1.65"
+edition = "2021"
+
+[dependencies]
+rapp = { path = "../rapp" }
+egui = "0.21"
+eframe = "0.21"
