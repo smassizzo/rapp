@@ -1,4 +1,9 @@
+use crate::error;
+use anyhow::bail;
+use anyhow::Result;
 use cargo_metadata::{camino::Utf8PathBuf, DependencyKind, MetadataCommand, Package};
+use error::Error::{self};
+use log::{self, debug};
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
@@ -8,26 +13,30 @@ use std::{
 pub struct Show;
 
 impl Show {
-    pub fn run(&mut self) {
-        let dir = scratch::path("rapp_runner");
+    pub fn run(&mut self) -> Result<()> {
+        let temp_scr_dir = scratch::path("rapp_runner");
+        debug!("Use temp dir: {temp_scr_dir:#?}");
 
         // Get saved config or else create it
-        let mut config = Config::read_from(&dir);
-        if config.is_none() {
-            config = create_and_save(&dir);
-        }
+        let config = match Config::read_from(&temp_scr_dir) {
+            Some(config) => {
+                debug!("Use cached config");
+                config
+            }
+            None => {
+                debug!("Create and save new config");
+                create_and_save(&temp_scr_dir)?
+            }
+        };
 
-        if let Some(config) = config {
-            println!("{config:#?}");
-        } else {
-            println!("Could not find or select a rapp project in current dir. Please change the dir of provide the path of the project");
-        }
+        println!("{config:#?}");
 
         // println!("Run cargo build - with target dir");
         // println!("set env var RAPP_RUNNER_STOP to false");
         // println!("Run cargo build - with target dir");
         // println!("Run cargo run - with target dir");
         // println!("set env var RAPP_RUNNER_STOP to false");
+        Ok(())
     }
 }
 
@@ -39,25 +48,16 @@ struct Config {
 
 impl Config {
     fn read_from(dir: &Path) -> Option<Self> {
-        println!("Try read existing config from temp dir");
-
-        // Create full path
         let path = Self::full_path(dir);
-
-        // Read from file
         fs::read_to_string(path)
             .ok()
             .and_then(|s| ron::from_str::<Config>(&s).ok())
     }
 
-    fn write_to(&self, dir: &Path) {
-        println!("Try write config to temp dir");
-
-        // Create full path
+    fn write_to(&self, dir: &Path) -> anyhow::Result<()> {
         let path = Self::full_path(dir);
-
-        // Write to file
-        let _ = ron::to_string(&self).map(|s| fs::write(&path, s));
+        fs::write(path, ron::to_string(&self)?)?;
+        Ok(())
     }
 
     fn full_path(dir: &Path) -> PathBuf {
@@ -67,7 +67,8 @@ impl Config {
     }
 }
 
-fn create_and_save(dir: &Path) -> Option<Config> {
+fn create_and_save(dir: &Path) -> Result<Config> {
+    println!("Create config");
     let meta = MetadataCommand::default().exec().unwrap();
     let mut packages_depending_on_rap: Vec<Package> = vec![];
 
@@ -100,20 +101,16 @@ fn create_and_save(dir: &Path) -> Option<Config> {
 
     let package = match packages_depending_on_rap.len() {
         0 => {
-            println!("None found");
-            return None;
+            bail!(Error::NoRappCrateFound(dir.to_path_buf()));
         }
         1 => packages_depending_on_rap.first().unwrap(), // package found
         _ => {
-            println!(
-                "Multiple candiates found in workspace: {:?}. Provide the name with option '--name <name>'",
-                packages_depending_on_rap
-                    .iter()
-                    .map(|p| p.name.clone())
-                    .collect::<Vec<String>>()
-            );
-            println!("{:?}", packages_depending_on_rap.get(0).unwrap());
-            return None;
+            let names = packages_depending_on_rap
+                .iter()
+                .map(|p| p.name.clone())
+                .collect::<Vec<String>>();
+
+            bail!(Error::MultipleRappCratesFound(names));
         }
     };
 
@@ -123,7 +120,7 @@ fn create_and_save(dir: &Path) -> Option<Config> {
     };
 
     // Save
-    config.write_to(dir);
+    config.write_to(dir)?;
 
-    Some(config)
+    Ok(config)
 }

@@ -1,9 +1,14 @@
+use std::path::PathBuf;
+
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("given path {0} is not a folder")]
-    RootNotDir(String),
-    #[error("unable to initialize workspace: {0}")]
-    Init(String),
+    #[error("Could not find a lib crate with dependency on rapp in dir {0}")]
+    NoRappCrateFound(PathBuf),
+
+    #[error(
+        "Multiple candidates found: {0:?}. Please indicate which one to show with option: --name <name>"
+    )]
+    MultipleRappCratesFound(Vec<String>),
 }
