@@ -7,13 +7,15 @@ use crate::clap_rapp_cmd::RappCmd;
 use init::Init;
 use log::LevelFilter;
 use show::Show;
-
+use std::io::Write;
 pub struct RappTool;
 
 impl RappTool {
     pub fn run(&mut self, cmd: RappCmd) {
-        env_logger::init();
-        log::set_max_level(LevelFilter::Debug);
+        env_logger::builder()
+            .filter_level(LevelFilter::Debug)
+            .format(|buf, record| writeln!(buf, "{}", record.args()))
+            .init();
 
         let result = match cmd {
             RappCmd::Init { path: name } => {

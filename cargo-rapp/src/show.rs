@@ -1,8 +1,7 @@
-use crate::error;
+use crate::error::Error;
 use anyhow::bail;
 use anyhow::Result;
 use cargo_metadata::{camino::Utf8PathBuf, DependencyKind, MetadataCommand, Package};
-use error::Error::{self};
 use log::{self, debug};
 use serde::{Deserialize, Serialize};
 use std::{
