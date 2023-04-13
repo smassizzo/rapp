@@ -1,6 +1,6 @@
 use std::{
     fs::{self, ReadDir},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use anyhow::Result;
@@ -10,13 +10,16 @@ use crate::config::Config;
 
 #[derive(Debug)]
 pub(crate) struct Viewer<'a> {
-    config: &'a Config,
+    _config: &'a Config,
     dir: PathBuf,
 }
 
 impl<'a> Viewer<'a> {
     pub(crate) fn load_or_create(config: &'a Config, dir: PathBuf) -> Result<Self> {
-        let mut viewer = Self { config, dir };
+        let mut viewer = Self {
+            _config: config,
+            dir,
+        };
         if !viewer.exits()? {
             debug!("Generate code for runner");
             viewer.create()?
