@@ -1,4 +1,4 @@
-use crate::config::Config;
+use crate::{config::Config, viewer::Viewer};
 use anyhow::Result;
 use log::{self, debug};
 
@@ -22,6 +22,8 @@ impl Show {
         };
 
         debug!("{config:#?}");
+
+        let viewer = Viewer::load_or_create(&config, temp_scr_dir);
 
         // println!("Run cargo build - with target dir");
         // println!("set env var RAPP_RUNNER_STOP to false");

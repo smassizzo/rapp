@@ -3,6 +3,7 @@ mod cmd_show;
 pub mod commands_parser;
 mod config;
 mod error;
+mod viewer;
 
 use crate::commands_parser::RappCmd;
 use cmd_init::Init;
