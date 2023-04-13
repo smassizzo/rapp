@@ -1,9 +1,8 @@
 use std::path::PathBuf;
-
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum RappError {
     #[error("Could not find a lib crate with dependency on rapp in dir {0}")]
     NoRappCrateFound(PathBuf),
 

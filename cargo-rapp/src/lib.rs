@@ -1,20 +1,22 @@
-pub mod clap_rapp_cmd;
+mod cmd_init;
+mod cmd_show;
+pub mod commands_parser;
+mod config;
 mod error;
-mod init;
-mod show;
 
-use crate::clap_rapp_cmd::RappCmd;
-use init::Init;
+use crate::commands_parser::RappCmd;
+use cmd_init::Init;
+use cmd_show::Show;
 use log::LevelFilter;
-use show::Show;
 use std::io::Write;
+
 pub struct RappTool;
 
 impl RappTool {
     pub fn run(&mut self, cmd: RappCmd) {
         env_logger::builder()
             .filter_level(LevelFilter::Debug)
-            .format(|buf, record| writeln!(buf, "{}", record.args()))
+            .format(|buf, record| writeln!(buf, "- {}", record.args()))
             .init();
 
         let result = match cmd {
