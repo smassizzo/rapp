@@ -83,6 +83,7 @@ impl Viewer {
 
         let mut bin = PathBuf::new();
         bin.push(&self.target_dir);
+        bin.push("target");
         bin.push("debug");
         bin.push("rapp_runner");
         if bin.exists() {
@@ -99,7 +100,7 @@ impl Viewer {
         let mut viewer = Viewer {
             bin: None,
             cache_dir: config.scratch_dir.clone(),
-            target_dir: config.target_dir.clone().into(),
+            target_dir: config.target_dir.clone(),
         };
 
         // Save Cargo.toml
@@ -115,10 +116,16 @@ impl Viewer {
 
         fs::write(cargo_toml, cargo_toml_content)?;
 
+        // Create build.sh content
+        let mut build_sh_content = String::new();
+        build_sh_content.push_str("cd ");
+        build_sh_content.push_str(format!("{:?}\n", viewer.cache_dir).as_str());
+        build_sh_content.push_str("cargo build");
+
         // Save build.sh
         let mut build_sh = viewer.cache_dir.clone();
         build_sh.push("build.sh");
-        fs::write(build_sh, include_bytes!("../code_gen/build.sh"))?;
+        fs::write(build_sh, build_sh_content)?;
 
         // Create src dir (to place main.rs)
         let mut src_dir = viewer.cache_dir.clone();
@@ -131,6 +138,8 @@ impl Viewer {
         let mut main_rs = src_dir;
         main_rs.push("main.rs");
         fs::write(main_rs, include_bytes!("../code_gen/src/main.rs"))?;
+
+        dbg!(&viewer);
 
         // Build
         viewer.build()?;

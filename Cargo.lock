@@ -1884,7 +1884,6 @@ dependencies = [
  "eframe",
  "egui",
  "rapp 0.1.0",
- "test_app",
 ]
 
 [[package]]
