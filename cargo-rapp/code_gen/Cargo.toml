@@ -1,1 +1,16 @@
+[package]
+name = "rapp_runner"
+version = "0.1.0"
+rust-version = "1.65"
+edition = "2021"
+
 [dependencies]
+# runner = { git = "https://github.com/smassizzo/rapp.git" }
+runner = { path = "/Users/developer/Projects/rapp/runner" }
+rapp = { path = "/Users/developer/Projects/rapp/rapp" }
+
+# the app to show
+# app = { path = "${dir}/{$name}", package = "${name}" }
+app = { path = "/Users/developer/Projects/rapp/test_app", package = "test_app" }
+
+[workspace]

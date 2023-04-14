@@ -10,4 +10,7 @@ pub enum RappError {
         "Multiple candidates found: {0:?}. Please indicate which one to show with option: --name <name>"
     )]
     MultipleRappCratesFound(Vec<String>),
+
+    #[error("{0}")]
+    Other(String),
 }

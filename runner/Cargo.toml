@@ -5,7 +5,18 @@ rust-version = "1.65"
 edition = "2021"
 
 [dependencies]
-test_app = { path = "../test_app" }
+app_to_show = { path = "../test_app", package = "test_app" }
 rapp = { path = "../rapp" }
 egui = "0.21"
 eframe = "0.21"
+
+# [package]
+# name = "{$name}runner"
+# version = "0.1.0"
+# rust-version = "1.65"
+# edition = "2021"
+
+# [dependencies]
+# runner = { git = "https://github.com/smassizzo/rapp.git", package = "runner" }
+# # the app to show
+# app = { path = "${dir}", package = "{$name}" }
