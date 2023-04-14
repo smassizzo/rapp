@@ -5,12 +5,10 @@ rust-version = "1.65"
 edition = "2021"
 
 [dependencies]
-# runner = { git = "https://github.com/smassizzo/rapp.git" }
-runner = { path = "/Users/developer/Projects/rapp/runner" }
-rapp = { path = "/Users/developer/Projects/rapp/rapp" }
+runner = { git = "https://github.com/smassizzo/rapp.git" }
+rapp = { git = "https://github.com/smassizzo/rapp.git" }
 
 # the app to show
-# app = { path = "${dir}/{$name}", package = "${name}" }
-app = { path = "/Users/developer/Projects/rapp/test_app", package = "test_app" }
+app = { path = "${dir}/${name}", package = "${name}" }
 
 [workspace]

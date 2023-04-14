@@ -513,6 +513,7 @@ dependencies = [
  "log",
  "ron",
  "serde",
+ "serde_json",
  "thiserror",
 ]
 
@@ -1809,6 +1810,11 @@ name = "rapp"
 version = "0.1.0"
 
 [[package]]
+name = "rapp"
+version = "0.1.0"
+source = "git+https://github.com/smassizzo/rapp.git#74bc0c52f6592913bec2809040351c574cc92a10"
+
+[[package]]
 name = "raw-window-handle"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1877,7 +1883,7 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "egui",
- "rapp",
+ "rapp 0.1.0",
  "test_app",
 ]
 
@@ -2152,7 +2158,7 @@ version = "0.1.0"
 dependencies = [
  "eframe",
  "egui",
- "rapp",
+ "rapp 0.1.0 (git+https://github.com/smassizzo/rapp.git)",
 ]
 
 [[package]]

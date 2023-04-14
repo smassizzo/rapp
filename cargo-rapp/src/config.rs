@@ -1,9 +1,10 @@
 use crate::error::RappError;
 use anyhow::{bail, Result};
 use cargo_metadata::{camino::Utf8PathBuf, DependencyKind, MetadataCommand, Package};
-
+use log::trace;
 use serde::{Deserialize, Serialize};
 use std::{
+    env::current_dir,
     fs,
     path::{Path, PathBuf},
 };
@@ -13,6 +14,7 @@ pub(crate) struct Config {
     pub(crate) name: String,
     pub(crate) target_dir: Utf8PathBuf,
     pub(crate) scratch_dir: PathBuf,
+    pub(crate) app_dir: PathBuf,
 }
 
 impl Config {
@@ -49,6 +51,7 @@ impl Config {
             name: candidate.name.clone(),
             target_dir: meta.target_directory,
             scratch_dir: dir.to_path_buf(),
+            app_dir: current_dir()?,
         };
 
         // Save
@@ -75,17 +78,21 @@ fn rapp_candidates(meta: &cargo_metadata::Metadata) -> Vec<Package> {
 
     // collect all workspace members that have a dependency on rapp and are a lib
     for package_id in meta.workspace_members.clone() {
+        trace!("{package_id}");
         for package in &meta.packages {
             if package.targets.iter().any(|t| !t.is_lib()) {
+                trace!("not a lib {}", package.name);
                 // not a lib
                 continue;
             }
             // match by name
             let name = package_id.repr.split(' ').next().unwrap();
+            trace!("name {}", name);
+            trace!("name {:#?}", package);
             if package
                 .dependencies
                 .iter()
-                .any(|d| d.name == name && d.kind == DependencyKind::Normal)
+                .any(|d| d.name == "rapp" && d.kind == DependencyKind::Normal)
             {
                 // this package:
                 // - is a workspace memnber,
@@ -95,10 +102,180 @@ fn rapp_candidates(meta: &cargo_metadata::Metadata) -> Vec<Package> {
             }
         }
     }
+    trace!("{:?}", &packages_depending_on_rap);
 
     // depublicate
     packages_depending_on_rap.sort_by(|a, b| a.name.cmp(&b.name));
     packages_depending_on_rap.dedup_by(|a, b| a.name.eq(&b.name));
 
     packages_depending_on_rap
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::config::rapp_candidates;
+    use cargo_metadata::Metadata;
+    use log::LevelFilter;
+
+    fn _init() {
+        let _ = env_logger::builder()
+            .is_test(true)
+            .filter_level(LevelFilter::Trace)
+            .try_init();
+    }
+
+    #[test]
+    fn parse_metadata_1() {
+        // init(); use if you want to see loggin
+        let deserialized: Metadata = serde_json::from_str(METADATA_1).unwrap();
+        let rapp_candidates = rapp_candidates(&deserialized);
+        assert_eq!(rapp_candidates.len(), 1);
+    }
+
+    #[test]
+    fn parse_metadata_2() {
+        // init(); use if you want to see loggin
+        let deserialized: Metadata = serde_json::from_str(METADATA_1).unwrap();
+        let rapp_candidates = rapp_candidates(&deserialized);
+        assert_eq!(rapp_candidates.len(), 1);
+    }
+
+    const METADATA_1: &str = r#"{
+    "packages": [
+        {
+            "name": "my_rap",
+            "version": "0.1.0",
+            "id": "my_rap 0.1.0 (path+file:///Users/developer/Projects/my_rap/hello_app)",
+            "license": null,
+            "license_file": null,
+            "description": null,
+            "source": null,
+            "dependencies": [
+                {
+                    "name": "rapp",
+                    "source": "git+https://github.com/smassizzo/rapp.git",
+                    "req": "*",
+                    "kind": null,
+                    "rename": null,
+                    "optional": false,
+                    "uses_default_features": true,
+                    "features": [],
+                    "target": null,
+                    "registry": null
+                }
+            ],
+            "targets": [
+                {
+                    "kind": [
+                        "lib"
+                    ],
+                    "crate_types": [
+                        "lib"
+                    ],
+                    "name": "my_rap",
+                    "src_path": "/Users/developer/Projects/my_rap/hello_app/src/lib.rs",
+                    "edition": "2021",
+                    "doc": true,
+                    "doctest": true,
+                    "test": true
+                }
+            ],
+            "features": {},
+            "manifest_path": "/Users/developer/Projects/my_rap/hello_app/Cargo.toml",
+            "metadata": null,
+            "publish": null,
+            "authors": [],
+            "categories": [],
+            "keywords": [],
+            "readme": null,
+            "repository": null,
+            "homepage": null,
+            "documentation": null,
+            "edition": "2021",
+            "links": null,
+            "default_run": null,
+            "rust_version": null
+        },
+        {
+            "name": "rapp",
+            "version": "0.1.0",
+            "id": "rapp 0.1.0 (git+https://github.com/smassizzo/rapp.git#74bc0c52f6592913bec2809040351c574cc92a10)",
+            "license": null,
+            "license_file": null,
+            "description": "A cargo tool to facilitate building mobile apps with rapp",
+            "source": "git+https://github.com/smassizzo/rapp.git#74bc0c52f6592913bec2809040351c574cc92a10",
+            "dependencies": [],
+            "targets": [
+                {
+                    "kind": [
+                        "lib"
+                    ],
+                    "crate_types": [
+                        "lib"
+                    ],
+                    "name": "rapp",
+                    "src_path": "/Users/developer/.cargo/git/checkouts/rapp-2dc35b25ab718a6e/74bc0c5/rapp/src/lib.rs",
+                    "edition": "2021",
+                    "doc": true,
+                    "doctest": true,
+                    "test": true
+                }
+            ],
+            "features": {},
+            "manifest_path": "/Users/developer/.cargo/git/checkouts/rapp-2dc35b25ab718a6e/74bc0c5/rapp/Cargo.toml",
+            "metadata": null,
+            "publish": null,
+            "authors": [
+                "Sebastiaan Massizzo"
+            ],
+            "categories": [],
+            "keywords": [],
+            "readme": null,
+            "repository": null,
+            "homepage": null,
+            "documentation": null,
+            "edition": "2021",
+            "links": null,
+            "default_run": null,
+            "rust_version": "1.65"
+        }
+    ],
+    "workspace_members": [
+        "my_rap 0.1.0 (path+file:///Users/developer/Projects/my_rap/hello_app)"
+    ],
+    "resolve": {
+        "nodes": [
+            {
+                "id": "my_rap 0.1.0 (path+file:///Users/developer/Projects/my_rap/hello_app)",
+                "dependencies": [
+                    "rapp 0.1.0 (git+https://github.com/smassizzo/rapp.git#74bc0c52f6592913bec2809040351c574cc92a10)"
+                ],
+                "deps": [
+                    {
+                        "name": "rapp",
+                        "pkg": "rapp 0.1.0 (git+https://github.com/smassizzo/rapp.git#74bc0c52f6592913bec2809040351c574cc92a10)",
+                        "dep_kinds": [
+                            {
+                                "kind": null,
+                                "target": null
+                            }
+                        ]
+                    }
+                ],
+                "features": []
+            },
+            {
+                "id": "rapp 0.1.0 (git+https://github.com/smassizzo/rapp.git#74bc0c52f6592913bec2809040351c574cc92a10)",
+                "dependencies": [],
+                "deps": [],
+                "features": []
+            }
+        ],
+        "root": null
+    },
+    "target_directory": "/Users/developer/Projects/my_rap/target",
+    "version": 1,
+    "workspace_root": "/Users/developer/Projects/my_rap",
+    "metadata": null
+}"#;
 }
