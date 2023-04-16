@@ -15,6 +15,8 @@ pub(crate) struct Config {
     pub(crate) target_dir: PathBuf,
     pub(crate) scratch_dir: PathBuf,
     pub(crate) app_dir: PathBuf,
+    pub(crate) use_relative_paths: bool,
+    pub(crate) rebuild: bool,
 }
 
 impl Config {
@@ -77,8 +79,8 @@ impl Config {
             target_dir,
             scratch_dir: cache_dir.to_path_buf(),
             app_dir,
+            ..Default::default()
         };
-        dbg!(&config);
 
         // Save
         config.write_to(cache_dir)?;

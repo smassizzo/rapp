@@ -1,11 +1,11 @@
+pub mod cli_parser;
 mod cmd_init;
 mod cmd_show;
-pub mod commands_parser;
 mod config;
 mod error;
 mod viewer;
 
-use crate::commands_parser::RappCmd;
+use crate::cli_parser::RappCmd;
 use cmd_init::Init;
 use cmd_show::Show;
 use log::LevelFilter;
@@ -25,7 +25,14 @@ impl RappTool {
                 Init { path: name }.run();
                 Ok(())
             }
-            RappCmd::Show => Show.run(),
+            RappCmd::Show {
+                rebuild,
+                use_relative_paths: use_local_paths,
+            } => Show {
+                rebuild,
+                use_relative_paths: use_local_paths,
+            }
+            .run(),
         };
 
         if let Err(err) = result {

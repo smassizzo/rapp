@@ -1,4 +1,4 @@
-use cargo_rapp::{commands_parser::RappCmd, RappTool};
+use cargo_rapp::{cli_parser::RappCmd, RappTool};
 use clap::Parser;
 
 // This is the cargo-rapp binary

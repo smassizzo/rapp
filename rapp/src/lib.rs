@@ -9,7 +9,9 @@ pub trait RustApp {
 
     fn start(&mut self);
 
-    fn new() -> Self;
+    fn new() -> Self
+    where
+        Self: Sized;
 }
 
 pub trait Page {

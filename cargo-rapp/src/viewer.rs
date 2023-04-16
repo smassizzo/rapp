@@ -1,35 +1,39 @@
+use crate::{config::Config, error::RappError};
+use anyhow::{bail, Result};
+use log::debug;
+use serde::{Deserialize, Serialize};
 use std::{
     fs,
     path::{Path, PathBuf},
     process::Command,
 };
 
-use anyhow::{bail, Result};
-use log::debug;
-use serde::{Deserialize, Serialize};
-
-use crate::{config::Config, error::RappError};
-
 #[derive(Debug, Deserialize, Serialize, Default)]
 pub(crate) struct Viewer {
     bin: Option<PathBuf>,
     cache_dir: PathBuf,
     target_dir: PathBuf,
+    use_relative_paths: bool,
 }
 
 impl Viewer {
     pub(crate) fn read_or_build(config: &Config) -> Result<Self> {
-        if let Some(viewer) = Viewer::read_from(&config.scratch_dir) {
-            debug!("Reuse generated viewer from previous run");
-            Ok(viewer)
-        } else {
-            debug!("Generate code for viewer");
-            let viewer = Viewer::new(config)?;
-
-            viewer.write_to(&config.scratch_dir)?;
-
-            Ok(viewer)
+        if !config.rebuild {
+            if let Some(viewer) = Viewer::read_from(&config.scratch_dir) {
+                debug!("Re-use generated viewer from previous run");
+                return Ok(viewer);
+            } else {
+                debug!("No viewer from previous run in cache");
+            }
         }
+
+        debug!("Generate code for viewer");
+
+        let viewer = Viewer::new(config)?;
+
+        viewer.write_to(&config.scratch_dir)?;
+
+        Ok(viewer)
     }
 
     pub(crate) fn run(&self) -> Result<()> {
@@ -59,6 +63,17 @@ impl Viewer {
     }
 
     fn build(&mut self) -> Result<()> {
+        let mut bin = PathBuf::new();
+        bin.push(&self.target_dir);
+        bin.push("target");
+        bin.push("debug");
+        bin.push("rapp_runner");
+
+        // remove old binary
+        if bin.exists() {
+            fs::remove_file(&bin)?;
+        }
+
         let mut build_sh = PathBuf::new();
         build_sh.push(&self.cache_dir);
         build_sh.push("build.sh");
@@ -81,11 +96,7 @@ impl Viewer {
             dbg!(output);
         }
 
-        let mut bin = PathBuf::new();
-        bin.push(&self.target_dir);
-        bin.push("target");
-        bin.push("debug");
-        bin.push("rapp_runner");
+        // Check if everyting went well
         if bin.exists() {
             self.bin = Some(bin);
             Ok(())
@@ -101,16 +112,23 @@ impl Viewer {
             bin: None,
             cache_dir: config.scratch_dir.clone(),
             target_dir: config.target_dir.clone(),
+            use_relative_paths: config.use_relative_paths,
         };
+        dbg!(&viewer);
 
         // Save Cargo.toml
         let mut cargo_toml = viewer.cache_dir.clone();
         cargo_toml.push("Cargo.toml");
+
         let app_dir = config.app_dir.to_str().ok_or(RappError::Other(
             "could not convert path to string".to_string(),
         ))?;
-        let mut cargo_toml_content =
-            String::from_utf8(include_bytes!("../code_gen/Cargo.toml").to_vec())?;
+
+        let mut cargo_toml_content = if viewer.use_relative_paths {
+            String::from_utf8(include_bytes!("../code_gen/CargoRelativePaths.toml").to_vec())?
+        } else {
+            String::from_utf8(include_bytes!("../code_gen/Cargo.toml").to_vec())?
+        };
         cargo_toml_content = cargo_toml_content.replace("${dir}", app_dir);
         cargo_toml_content = cargo_toml_content.replace("${name}", &config.name);
 
@@ -166,7 +184,3 @@ impl Viewer {
         path
     }
 }
-
-// fn contains_file(read_dir: &mut ReadDir, name: &str) -> bool {
-//     read_dir.any(|entry| entry.is_ok() && entry.unwrap().file_name() == name)
-// }

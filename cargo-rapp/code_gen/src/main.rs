@@ -1,7 +1,12 @@
 use rapp::RustApp;
 
 fn main() {
-    println!("RUN 2");
+    // new
     let app = app::App::new();
-    runner::run(app);
+
+    // box
+    let app = Box::new(app);
+
+    // run
+    let _ = runner::run(app);
 }

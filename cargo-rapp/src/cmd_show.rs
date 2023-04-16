@@ -4,26 +4,38 @@ use crate::{config::Config, viewer::Viewer};
 use anyhow::Result;
 use log::{self, debug};
 
-pub struct Show;
+pub struct Show {
+    pub(crate) rebuild: Option<bool>,
+    pub(crate) use_relative_paths: Option<bool>,
+}
 
 impl Show {
     pub fn run(&mut self) -> Result<()> {
-        let cache_dir = create_cache_dir()?; //scratch::path("rapp_runner");
+        let cache_dir = create_cache_dir()?;
+        let rebuild = Some(true) == self.rebuild;
         debug!("Cache dir {cache_dir:#?}");
+        if rebuild {
+            debug!("Rebuild everyting");
+        } else {
+            debug!("Use data from previous run if available");
+        }
 
         // Get saved config or else create it
-        let config = match Config::read_from(&cache_dir) {
-            Some(config) => {
-                debug!("Reuse config from previous run");
+        let mut config = match Config::read_from(&cache_dir) {
+            Some(config) if { !rebuild } => {
+                debug!("Re-use config from previous run");
                 config
             }
-            None => {
+            None | Some(_) => {
                 debug!("Gather info and create config");
                 Config::create_and_save(&cache_dir)?
             }
         };
+        config.rebuild = Some(true) == self.rebuild;
+        config.use_relative_paths = Some(true) == self.use_relative_paths;
+        dbg!(&config);
 
-        // Get the viewer binary. If it doesn't exist, generate it
+        // Get the viewer binary from cache. If it doesn't exist, generate and build it
         let viewer = Viewer::read_or_build(&config)?;
 
         // Run

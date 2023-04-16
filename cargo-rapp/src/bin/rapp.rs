@@ -1,4 +1,4 @@
-use cargo_rapp::{commands_parser::RappCmd as Rapp, RappTool};
+use cargo_rapp::{cli_parser::RappCmd as Rapp, RappTool};
 use clap::Parser;
 
 // This is the stand-alone rapp binary and is used as "rapp <rapp_subcommand>"
