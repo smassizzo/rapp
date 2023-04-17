@@ -1,21 +1,20 @@
-use std::{collections::HashMap, sync::Arc};
-
 use rapp::{Page, PageFn, RustApp};
+use std::sync::Arc;
 
 #[derive(Default)]
 pub struct App {}
 
 impl RustApp for App {
-    fn pages(&mut self) -> HashMap<String, PageFn> {
-        let mut map: HashMap<String, PageFn> = HashMap::new();
+    fn pages(&mut self) -> Vec<PageFn> {
+        let mut pages = vec![];
 
         let page1: Arc<Box<dyn Page>> = Arc::new(Box::new(HomePage {}));
-        map.insert(page1.name(), page1);
+        pages.push(page1);
 
         let page2: Arc<Box<dyn Page>> = Arc::new(Box::new(DetailsPage {}));
-        map.insert(page2.name(), page2);
+        pages.push(page2);
 
-        map
+        pages
     }
 
     fn current_page(&self) -> String {

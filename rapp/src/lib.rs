@@ -1,9 +1,9 @@
-use std::{collections::HashMap, sync::Arc};
+use std::sync::Arc;
 
 pub type PageFn = Arc<Box<dyn Page>>;
 
 pub trait RustApp {
-    fn pages(&mut self) -> HashMap<String, PageFn>;
+    fn pages(&mut self) -> Vec<PageFn>;
 
     fn current_page(&self) -> String;
 

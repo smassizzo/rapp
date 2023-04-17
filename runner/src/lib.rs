@@ -26,7 +26,7 @@ impl eframe::App for EframeWrapped<'_> {
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::horizontal().show(ui, |ui| {
                 ui.horizontal(|ui| {
-                    for (_, page) in self.0.pages().iter() {
+                    for page in self.0.pages() {
                         let page = page.clone();
 
                         ui.vertical(|ui| {
