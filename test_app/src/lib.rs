@@ -30,8 +30,6 @@ impl RustApp for App {
 
 struct HomePage;
 
-impl HomePage {}
-
 impl Page for HomePage {
     fn name(&self) -> String {
         "HomePage".to_string()
@@ -43,8 +41,6 @@ impl Page for HomePage {
 }
 
 struct DetailsPage;
-
-impl HomePage {}
 
 impl Page for DetailsPage {
     fn name(&self) -> String {
