@@ -2,7 +2,7 @@ use std::{env, path::PathBuf};
 
 use crate::{config::Config, viewer::Viewer};
 use anyhow::Result;
-use log::{self, debug};
+use log::{self, debug, info, trace};
 
 pub struct Show {
     pub(crate) rebuild: Option<bool>,
@@ -12,12 +12,18 @@ pub struct Show {
 impl Show {
     pub fn run(&mut self) -> Result<()> {
         let cache_dir = create_cache_dir()?;
-        let rebuild = Some(true) == self.rebuild;
         debug!("Cache dir {cache_dir:#?}");
+
+        let rebuild = Some(true) == self.rebuild;
         if rebuild {
-            debug!("Rebuild everyting");
+            info!("Rebuild everyting");
         } else {
             debug!("Use data from previous run if available");
+        }
+
+        let use_relative_paths = Some(true) == self.use_relative_paths;
+        if use_relative_paths {
+            info!("Use relative path to the rapp and runner crates in the current workspace");
         }
 
         // Get saved config or else create it
@@ -31,15 +37,16 @@ impl Show {
                 Config::create_and_save(&cache_dir)?
             }
         };
-        config.rebuild = Some(true) == self.rebuild;
-        config.use_relative_paths = Some(true) == self.use_relative_paths;
-        dbg!(&config);
+        config.rebuild = rebuild;
+        config.use_relative_paths = use_relative_paths;
+
+        trace!("{:#?}", &config);
 
         // Get the viewer binary from cache. If it doesn't exist, generate and build it
         let viewer = Viewer::read_or_build(&config)?;
 
         // Run
-        debug!("Show '{}' in viewer", config.name);
+        info!("Run {}", config.name);
         viewer.run()?;
 
         // println!("set env var RAPP_RUNNER_STOP to false");

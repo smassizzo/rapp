@@ -114,7 +114,7 @@ impl Viewer {
             target_dir: config.target_dir.clone(),
             use_relative_paths: config.use_relative_paths,
         };
-        dbg!(&viewer);
+        debug!("Viewer before building: \n {:#?}", &viewer);
 
         // Save Cargo.toml
         let mut cargo_toml = viewer.cache_dir.clone();
@@ -157,10 +157,13 @@ impl Viewer {
         main_rs.push("main.rs");
         fs::write(main_rs, include_bytes!("../code_gen/src/main.rs"))?;
 
-        dbg!(&viewer);
-
         // Build
         viewer.build()?;
+
+        debug!(
+            "Viewer after building. The bin should be set by now: \n {:#?}",
+            &viewer
+        );
 
         Ok(viewer)
     }

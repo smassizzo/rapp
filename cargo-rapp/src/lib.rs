@@ -8,15 +8,17 @@ mod viewer;
 use crate::cli_parser::RappCmd;
 use cmd_init::Init;
 use cmd_show::Show;
-use log::LevelFilter;
-use std::io::Write;
+use std::{env, io::Write};
 
 pub struct RappTool;
 
 impl RappTool {
     pub fn run(&mut self, cmd: RappCmd) {
+        // use to "info" as default log level
+        if env::var("RUST_LOG").is_err() {
+            env::set_var("RUST_LOG", "info")
+        }
         env_logger::builder()
-            .filter_level(LevelFilter::Debug)
             .format(|buf, record| writeln!(buf, "- {}", record.args()))
             .init();
 
