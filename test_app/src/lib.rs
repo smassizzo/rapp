@@ -1,5 +1,4 @@
-use rapp::{Page, PageFn, RustApp};
-use std::sync::Arc;
+use rapp::{screen::Screen, Page, PageFn, RustApp};
 
 #[derive(Default)]
 pub struct App {}
@@ -8,10 +7,10 @@ impl RustApp for App {
     fn pages(&mut self) -> Vec<PageFn> {
         let mut pages = vec![];
 
-        let page1: Arc<Box<dyn Page>> = Arc::new(Box::new(HomePage {}));
+        let page1: PageFn = Box::new(HomePage {});
         pages.push(page1);
 
-        let page2: Arc<Box<dyn Page>> = Arc::new(Box::new(DetailsPage {}));
+        let page2: PageFn = Box::new(DetailsPage {});
         pages.push(page2);
 
         pages
@@ -35,8 +34,8 @@ impl Page for HomePage {
         "HomePage".to_string()
     }
 
-    fn show(&mut self) {
-        println!("{}", self.name());
+    fn show(&mut self, screen: &mut Screen) {
+        screen.placeholder().height(150);
     }
 }
 
@@ -47,7 +46,12 @@ impl Page for DetailsPage {
         "DetailsPage".to_string()
     }
 
-    fn show(&mut self) {
-        println!("{}", self.name());
+    fn show(&mut self, screen: &mut Screen) {
+        screen.placeholder().height(20).width(70);
+        screen.placeholder();
+
+        screen.separator().thickness(10);
+        screen.separator();
+        screen.separator().thickness(1).thickness(3).thickness(5);
     }
 }

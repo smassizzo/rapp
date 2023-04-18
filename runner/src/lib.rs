@@ -3,8 +3,8 @@ use eframe::{
     epaint::{Color32, Stroke},
 };
 use egui::Ui;
-use rapp::{Page, RustApp};
-use std::sync::Arc;
+use rapp::{screen::Screen, PageFn, RustApp};
+use std::{cell::RefCell, vec};
 
 const PHONE_SIZE: (f32, f32) = (200., 500.);
 const BOTTOM_HEIGHT: f32 = 30.;
@@ -27,8 +27,7 @@ impl eframe::App for EframeWrapped<'_> {
             egui::ScrollArea::horizontal().show(ui, |ui| {
                 ui.horizontal(|ui| {
                     for page in self.0.pages() {
-                        let page = page.clone();
-
+                        //let page = page.clone();
                         ui.vertical(|ui| {
                             ui.push_id(page.name(), |ui| show_minified(page, self, ctx, ui))
                         });
@@ -40,7 +39,7 @@ impl eframe::App for EframeWrapped<'_> {
 }
 
 fn show_minified(
-    page: Arc<Box<dyn Page>>,
+    mut page: PageFn,
     wrapped_app: &mut EframeWrapped,
     ctx: &egui::Context,
     ui: &mut Ui,
@@ -87,6 +86,19 @@ fn show_minified(
                                 // page
                                 //AppPage::get_page_fn(&p)(app, ctx, ui);
                                 ui.heading(page.name());
+                                ui.separator();
+                                let mut screen = Screen {
+                                    egui_ui: ui,
+                                    queue: RefCell::new(vec![]),
+                                };
+                                let s = &mut screen;
+                                page.show(s);
+                                s.draw();
+                                {
+                                    //let arc_ui = Arc::new(ui);
+                                    //let screen = ScreenWithArc { arc_ui };
+                                    //page.show
+                                }
 
                                 // add space to push bottom down
                                 let current = ui.cursor().min;

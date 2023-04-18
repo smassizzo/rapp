@@ -6,5 +6,6 @@ edition = "2021"
 
 [dependencies]
 rapp = { path = "../rapp" }
-egui = "0.21"
-eframe = "0.21"
+
+egui.workspace = true
+eframe.workspace = true

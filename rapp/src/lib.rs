@@ -1,6 +1,10 @@
-use std::sync::Arc;
+use screen::Screen;
 
-pub type PageFn = Arc<Box<dyn Page>>;
+pub mod drawables;
+pub mod screen;
+pub mod structures;
+
+pub type PageFn = Box<dyn Page>;
 
 pub trait RustApp {
     fn pages(&mut self) -> Vec<PageFn>;
@@ -16,5 +20,5 @@ pub trait RustApp {
 
 pub trait Page {
     fn name(&self) -> String;
-    fn show(&mut self);
+    fn show(&mut self, screen: &mut Screen);
 }

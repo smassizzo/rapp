@@ -7,3 +7,8 @@ authors = ["Sebastiaan Massizzo"]
 description = "A library and tools to build mobile apps with rust"
 rust-version = "1.65"
 edition = "2021"
+
+
+[workspace.dependencies]
+egui = "0.21"
+eframe = "0.21"
