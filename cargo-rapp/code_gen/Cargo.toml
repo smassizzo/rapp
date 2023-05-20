@@ -9,6 +9,6 @@ runner = { git = "https://github.com/smassizzo/rapp.git" }
 rapp = { git = "https://github.com/smassizzo/rapp.git" }
 
 # the user's app
-app = { path = "${dir}/${name}", package = "${name}" }
+app = { path = "${app_dir}", package = "${name}" }
 
 [workspace]

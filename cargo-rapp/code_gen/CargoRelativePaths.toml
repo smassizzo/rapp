@@ -9,6 +9,6 @@ runner = { path = "../../../../runner" }
 rapp = { path = "../../../../rapp" }
 
 # the user's app
-app = { path = "${dir}/${name}", package = "${name}" }
+app = { path = "${app_dir}", package = "${name}" }
 
 [workspace]

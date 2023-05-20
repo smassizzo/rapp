@@ -117,8 +117,8 @@ impl Viewer {
         debug!("Viewer before building: \n {:#?}", &viewer);
 
         // Save Cargo.toml
-        let mut cargo_toml = viewer.cache_dir.clone();
-        cargo_toml.push("Cargo.toml");
+        let mut cargo_toml_path = viewer.cache_dir.clone();
+        cargo_toml_path.push("Cargo.toml");
 
         let app_dir = config.app_dir.to_str().ok_or(RappError::Other(
             "could not convert path to string".to_string(),
@@ -129,10 +129,10 @@ impl Viewer {
         } else {
             String::from_utf8(include_bytes!("../code_gen/Cargo.toml").to_vec())?
         };
-        cargo_toml_content = cargo_toml_content.replace("${dir}", app_dir);
+        cargo_toml_content = cargo_toml_content.replace("${app_dir}", app_dir);
         cargo_toml_content = cargo_toml_content.replace("${name}", &config.name);
 
-        fs::write(cargo_toml, cargo_toml_content)?;
+        fs::write(cargo_toml_path, cargo_toml_content)?;
 
         // Create build.sh content
         let mut build_sh_content = String::new();
